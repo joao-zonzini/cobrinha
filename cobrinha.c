@@ -28,7 +28,7 @@ typedef struct {
 } Direcao;
 
 void init_curses(WINDOW *win); Objeto *inicializar_cobrinha();
-Objeto *inicializar_frutos();
+Objeto *inicializar_frutos(); void definir_direcao(Direcao *dir, int key);
 
 int main(void){
 	// inicializar tela
@@ -52,24 +52,10 @@ int main(void){
 		// recebe direcao do usuario
 		int pressed = wgetch(win);
 
-		if (pressed == KEY_LEFT) {
-			if (dir.x == 1) continue;
-			dir.x = -1;
-			dir.y = 0;
-		} else if (pressed == KEY_RIGHT) {
-			if (dir.x == -1) continue;
-			dir.x = 1;
-			dir.y = 0;
-		} else if (pressed == KEY_UP) {
-			if (dir.y == 1) continue;
-			dir.x = 0;
-			dir.y = -1;
-		} else if (pressed == KEY_DOWN) {
-			if (dir.y == -1) continue;
-			dir.x = 0;
-			dir.y = 1;
-		} else if (pressed == '\e') {
+		if (pressed == '\e') {
 			break;
+		} else {
+			definir_direcao(&dir, pressed);
 		}
 
 		for (size_t i = jaz_arr_len(cobrinha); i > 0; i--) {
@@ -77,7 +63,7 @@ int main(void){
 			cobrinha[i].pos_y = cobrinha[i-1].pos_y;
 		}
 
-		// atualizar posicao da snake
+		// atualizar posicao da cobrinha
 		cobrinha[0].pos_x += dir.x;
 		cobrinha[0].pos_y += dir.y;
 
@@ -155,4 +141,24 @@ Objeto *inicializar_frutos() {
 	}
 
 	return head;
+}
+
+void definir_direcao(Direcao *dir, int key){
+	if (key == KEY_LEFT) {
+		if (dir->x == 1) return;
+		dir->x = -1;
+		dir->y = 0;
+	} else if (key == KEY_RIGHT) {
+		if (dir->x == -1) return;
+		dir->x = 1;
+		dir->y = 0;
+	} else if (key == KEY_UP) {
+		if (dir->y == 1) return;
+		dir->x = 0;
+		dir->y = -1;
+	} else if (key == KEY_DOWN) {
+		if (dir->y == -1) return;
+		dir->x = 0;
+		dir->y = 1;
+	}
 }
