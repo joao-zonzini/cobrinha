@@ -27,7 +27,7 @@ typedef struct {
 	int y;
 } Direcao;
 
-void init_curses(WINDOW *win);
+void init_curses(WINDOW *win); Objeto *inicializar_cobrinha();
 
 int main(void){
 	// inicializar tela
@@ -36,18 +36,11 @@ int main(void){
 	init_curses(win);
 
 	// snake
-	Objeto *cobrinha = NULL;
-
-	Objeto cabeca = {
-		.pos_x = 0,
-		.pos_y = 0,
-		.icon = '#',
-	};
+	Objeto *cobrinha = inicializar_cobrinha();
 
 	Objeto corpo = {0};
 	corpo.icon = 'o';
 
-	jaz_arr_append(cobrinha, cabeca);
 
 	Direcao dir = {
 		.x = 1,
@@ -143,4 +136,18 @@ void init_curses(WINDOW *win) {
 	keypad(win, true);
 	nodelay(win, true); // nao espera enter
 	curs_set(0); // esconde o cursor
+}
+
+Objeto *inicializar_cobrinha() {
+	Objeto *head = NULL;
+
+	Objeto cabeca = {
+		.pos_x = 0,
+		.pos_y = 0,
+		.icon = '#',
+	};
+
+	jaz_arr_append(head, cabeca);
+
+	return head;
 }
