@@ -28,6 +28,7 @@ typedef struct {
 } Direcao;
 
 void init_curses(WINDOW *win); Objeto *inicializar_cobrinha();
+Objeto *inicializar_frutos();
 
 int main(void){
 	// inicializar tela
@@ -35,29 +36,17 @@ int main(void){
 
 	init_curses(win);
 
-	// snake
+	// incializar objetos
 	Objeto *cobrinha = inicializar_cobrinha();
+	Objeto *frutos = inicializar_frutos();
 
 	Objeto corpo = {0};
 	corpo.icon = 'o';
-
 
 	Direcao dir = {
 		.x = 1,
 		.y = 0,
 	};
-
-	// fruta
-	Objeto *frutos = NULL;
-	Objeto fruta = {0};
-	fruta.icon = '@';
-
-	for (size_t i = 0; i < 5; i++) {
-		fruta.pos_x = (rand() % SCREEN_WIDTH);
-		fruta.pos_y = (rand() % SCREEN_HEIGHT);
-
-		jaz_arr_append(frutos, fruta);
-	}
 
 	while (true) {
 		// recebe direcao do usuario
@@ -148,6 +137,22 @@ Objeto *inicializar_cobrinha() {
 	};
 
 	jaz_arr_append(head, cabeca);
+
+	return head;
+}
+
+Objeto *inicializar_frutos() {
+	Objeto *head = NULL;
+
+	Objeto fruta = {0};
+	fruta.icon = '@';
+
+	for (size_t i = 0; i < 5; i++) {
+		fruta.pos_x = (rand() % SCREEN_WIDTH);
+		fruta.pos_y = (rand() % SCREEN_HEIGHT);
+
+		jaz_arr_append(head, fruta);
+	}
 
 	return head;
 }
