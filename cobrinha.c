@@ -16,6 +16,8 @@
 #define SCREEN_HEIGHT 20
 #endif
 
+#define SCREEN_FACTOR 2
+
 typedef struct {
 	int pos_x;
 	int pos_y;
@@ -29,6 +31,7 @@ typedef struct {
 
 void init_curses(WINDOW *win); Objeto *inicializar_cobrinha();
 Objeto *inicializar_frutos(); void definir_direcao(Direcao *dir, int key);
+void desenhar_objetos(Objeto *array);
 
 int main(void){
 	// inicializar tela
@@ -85,25 +88,26 @@ int main(void){
 		// desenhar na janela
 		erase(); // apaga o que estava na tela
 
-		for (size_t i = 0; i < jaz_arr_len(frutos); i++) {
-				mvaddch(frutos[i].pos_y, frutos[i].pos_x * 2, frutos[i].icon);
-		}
-
-		for (size_t i = 0; i < jaz_arr_len(cobrinha); i++) {
-				mvaddch(cobrinha[i].pos_y, cobrinha[i].pos_x * 2, cobrinha[i].icon);
-		}
+		desenhar_objetos(cobrinha);
+		desenhar_objetos(frutos);
 
 		usleep(125000);
 	}
 
 	endwin();
 
-	printf("%d\n", jaz_arr_len(cobrinha)-1);
+	printf("Score: %d\n", jaz_arr_len(cobrinha)-1);
 
 	jaz_arr_free(cobrinha);
 	jaz_arr_free(frutos);
 
 	return 0;
+}
+
+void desenhar_objetos(Objeto *array) {
+	for (size_t i = 0; i < jaz_arr_len(array); i++) {
+		mvaddch(array[i].pos_y, array[i].pos_x * SCREEN_FACTOR, array[i].icon);
+	}
 }
 
 void init_curses(WINDOW *win) {
