@@ -17,6 +17,7 @@
 #endif
 
 #define SCREEN_FACTOR 2
+#define N_INIT_FRUTOS 5
 
 typedef struct {
 	int pos_x;
@@ -39,6 +40,7 @@ void init_curses(WINDOW *win); Objeto *inicializar_cobrinha();
 Objeto *inicializar_frutos(); void definir_direcao(Direcao *dir, int key);
 void desenhar_objetos(Objeto *array); void atualizar_cobrinha(Objeto *cobrinha, Direcao dir);
 enum Colisao detectar_colisao(Objeto *cobrinha, Objeto *frutos);
+Objeto *adicionar_fruto(Objeto *frutos);
 
 int main(void){
 	// inicializar tela
@@ -52,8 +54,6 @@ int main(void){
 
 	Objeto corpo = {0};
 	corpo.icon = 'o';
-	Objeto fruta = {0};
-	fruta.icon = '@';
 
 	Direcao dir = {
 		.x = 1,
@@ -80,10 +80,7 @@ int main(void){
 				break;
 
 			case FRUTA:
-				fruta.pos_x = (rand() % SCREEN_WIDTH);
-				fruta.pos_y = (rand() % SCREEN_HEIGHT);
-
-				jaz_arr_append(frutos, fruta);
+				frutos = adicionar_fruto(frutos);
 
 				corpo.pos_x = cobrinha[0].pos_x - dir.x;
 				corpo.pos_y = cobrinha[0].pos_y - dir.y;
@@ -141,14 +138,8 @@ Objeto *inicializar_cobrinha() {
 Objeto *inicializar_frutos() {
 	Objeto *head = NULL;
 
-	Objeto fruta = {0};
-	fruta.icon = '@';
-
-	for (size_t i = 0; i < 5; i++) {
-		fruta.pos_x = (rand() % SCREEN_WIDTH);
-		fruta.pos_y = (rand() % SCREEN_HEIGHT);
-
-		jaz_arr_append(head, fruta);
+	for (size_t i = 0; i < N_INIT_FRUTOS; i++) {
+		head = adicionar_fruto(head);
 	}
 
 	return head;
@@ -204,4 +195,16 @@ enum Colisao detectar_colisao(Objeto *cobrinha, Objeto *frutos) {
 			return FRUTA;
 		}
 	}
+}
+
+Objeto *adicionar_fruto(Objeto *frutos) {
+	Objeto fruta = {0};
+	fruta.icon = '@';
+
+	fruta.pos_x = (rand() % SCREEN_WIDTH);
+	fruta.pos_y = (rand() % SCREEN_HEIGHT);
+
+	jaz_arr_append(frutos, fruta);
+
+	return frutos;
 }
