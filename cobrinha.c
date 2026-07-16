@@ -116,6 +116,19 @@ void init_curses(WINDOW *win) {
 	keypad(win, true);
 	nodelay(win, true); // nao espera enter
 	curs_set(0); // esconde o cursor
+
+	if (has_colors() == FALSE) {
+		endwin();
+		fprintf(stderr, "Seu terminal nao suporta cores\n");
+		exit(1);
+	}
+
+	start_color();
+
+	use_default_colors();
+	init_pair(1, COLOR_RED, -1);
+	init_pair(1, COLOR_GREEN, -1);
+	init_pair(1, COLOR_YELLOW, -1);
 }
 
 Objeto *inicializar_cobrinha() {
