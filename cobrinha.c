@@ -41,6 +41,7 @@ Objeto *inicializar_frutos(); void definir_direcao(Direcao *dir, int key);
 void desenhar_objetos(Objeto *array); void atualizar_cobrinha(Objeto *cobrinha, Direcao dir);
 enum Colisao detectar_colisao(Objeto *cobrinha, Objeto *frutos);
 Objeto *adicionar_fruto(Objeto *frutos); Objeto *adicionar_corpo(Objeto *cobrinha);
+Objeto *iniciar_limites();
 
 int main(void){
 	// inicializar tela
@@ -51,6 +52,7 @@ int main(void){
 	// incializar objetos
 	Objeto *cobrinha = inicializar_cobrinha();
 	Objeto *frutos = inicializar_frutos();
+	Objeto *limites = iniciar_limites();
 
 	Direcao dir = {
 		.x = 1,
@@ -85,6 +87,7 @@ int main(void){
 		// desenhar na janela
 		erase(); // apaga o que estava na tela
 
+		desenhar_objetos(limites);
 		desenhar_objetos(cobrinha);
 		desenhar_objetos(frutos);
 
@@ -95,6 +98,7 @@ int main(void){
 
 	printf("Score: %d\n", jaz_arr_len(cobrinha)-1);
 
+	jaz_arr_free(limites);
 	jaz_arr_free(cobrinha);
 	jaz_arr_free(frutos);
 
@@ -164,7 +168,7 @@ void atualizar_cobrinha(Objeto *cobrinha, Direcao dir) {
 }
 
 enum Colisao detectar_colisao(Objeto *cobrinha, Objeto *frutos) {
-	if (cobrinha[0].pos_x == -1 || cobrinha[0].pos_x == SCREEN_WIDTH+1 || cobrinha[0].pos_y == -1 || cobrinha[0].pos_y == SCREEN_HEIGHT+1) {
+	if (cobrinha[0].pos_x == 0 || cobrinha[0].pos_x == SCREEN_WIDTH || cobrinha[0].pos_y == 0 || cobrinha[0].pos_y == SCREEN_HEIGHT) {
 		return LIMITE;
 	}
 
@@ -188,7 +192,7 @@ Objeto *adicionar_fruto(Objeto *frutos) {
 	Objeto fruta = {0};
 	fruta.icon = '@';
 
-	fruta.pos_x = (rand() % SCREEN_WIDTH);
+	fruta.pos_x = (rand() % SCREEN_WIDTH+1);
 	fruta.pos_y = (rand() % SCREEN_HEIGHT);
 
 	jaz_arr_append(frutos, fruta);
@@ -200,6 +204,8 @@ Objeto *adicionar_corpo(Objeto *cobrinha) {
 	Objeto corpo = {0};
 
 	if (cobrinha == NULL) {
+		corpo.pos_x = 1;
+		corpo.pos_y = 1;
 		corpo.icon = 'O';
 	} else {
 		corpo.pos_x = cobrinha[0].pos_x;
@@ -210,4 +216,39 @@ Objeto *adicionar_corpo(Objeto *cobrinha) {
 	jaz_arr_append(cobrinha, corpo);
 
 	return cobrinha;
+}
+
+Objeto *iniciar_limites() {
+	Objeto *limites = NULL;
+
+	Objeto borda = {0};
+	borda.icon = ':';
+
+	for (size_t i = 0; i < SCREEN_WIDTH; i++) {
+		borda.pos_x = i;
+		jaz_arr_append(limites, borda);
+	}
+
+	borda.pos_y = SCREEN_HEIGHT;
+
+	for (size_t i = 0; i < SCREEN_WIDTH; i++) {
+		borda.pos_x = i;
+		jaz_arr_append(limites, borda);
+	}
+
+	borda.pos_x = 0;
+
+	for (size_t i = 0; i < SCREEN_HEIGHT; i++) {
+		borda.pos_y = i;
+		jaz_arr_append(limites, borda);
+	}
+
+	borda.pos_x = SCREEN_WIDTH;
+
+	for (size_t i = 0; i <= SCREEN_HEIGHT; i++) {
+		borda.pos_y = i;
+		jaz_arr_append(limites, borda);
+	}
+
+	return(limites);
 }
