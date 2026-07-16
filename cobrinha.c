@@ -29,20 +29,16 @@ typedef struct {
 	int y;
 } Direcao;
 
+enum Colisao {
+	COBRA,
+	FRUTA,
+	LIMITE
+};
+
 void init_curses(WINDOW *win); Objeto *inicializar_cobrinha();
 Objeto *inicializar_frutos(); void definir_direcao(Direcao *dir, int key);
-void desenhar_objetos(Objeto *array);
-
-void atualizar_cobrinha(Objeto *cobrinha, Direcao dir) {
-	for (size_t i = jaz_arr_len(cobrinha); i > 0; i--) {
-		cobrinha[i].pos_x = cobrinha[i-1].pos_x;
-		cobrinha[i].pos_y = cobrinha[i-1].pos_y;
-	}
-
-	// atualizar posicao da cobrinha
-	cobrinha[0].pos_x += dir.x;
-	cobrinha[0].pos_y += dir.y;
-}
+void desenhar_objetos(Objeto *array); void atualizar_cobrinha(Objeto *cobrinha, Direcao dir);
+enum Colisao detectar_colisao(Objeto *cobrinha, Objeto *frutos);
 
 int main(void){
 	// inicializar tela
@@ -56,13 +52,16 @@ int main(void){
 
 	Objeto corpo = {0};
 	corpo.icon = 'o';
+	Objeto fruta = {0};
+	fruta.icon = '@';
 
 	Direcao dir = {
 		.x = 1,
 		.y = 0,
 	};
 
-	while (true) {
+	int perdeu = 0;
+	while (!perdeu) {
 		// recebe direcao do usuario
 		int pressed = wgetch(win);
 
@@ -74,19 +73,23 @@ int main(void){
 
 		atualizar_cobrinha(cobrinha, dir);
 
-		//verificar se fruta eh comida
-		for (size_t i = 0; i < jaz_arr_len(frutos); i++) {
-			if (cobrinha[0].pos_x == frutos[i].pos_x && cobrinha[0].pos_y == frutos[i].pos_y) {
-				frutos[i].pos_x = (rand() % SCREEN_WIDTH);
-				frutos[i].pos_y = (rand() % SCREEN_HEIGHT);
+		switch (detectar_colisao(cobrinha, frutos)) {
+			case LIMITE:
+			case COBRA:
+				perdeu = 1;
+				break;
+
+			case FRUTA:
+				fruta.pos_x = (rand() % SCREEN_WIDTH);
+				fruta.pos_y = (rand() % SCREEN_HEIGHT);
+
+				jaz_arr_append(frutos, fruta);
 
 				corpo.pos_x = cobrinha[0].pos_x - dir.x;
 				corpo.pos_y = cobrinha[0].pos_y - dir.y;
 
 				jaz_arr_append(cobrinha, corpo);
-
 				break;
-			}
 		}
 
 		// desenhar na janela
@@ -127,7 +130,7 @@ Objeto *inicializar_cobrinha() {
 	Objeto cabeca = {
 		.pos_x = 0,
 		.pos_y = 0,
-		.icon = '#',
+		.icon = 'O',
 	};
 
 	jaz_arr_append(head, cabeca);
@@ -168,5 +171,37 @@ void definir_direcao(Direcao *dir, int key){
 		if (dir->y == -1) return;
 		dir->x = 0;
 		dir->y = 1;
+	}
+}
+
+void atualizar_cobrinha(Objeto *cobrinha, Direcao dir) {
+	for (size_t i = jaz_arr_len(cobrinha); i > 0; i--) {
+		cobrinha[i].pos_x = cobrinha[i-1].pos_x;
+		cobrinha[i].pos_y = cobrinha[i-1].pos_y;
+	}
+
+	// atualizar posicao da cobrinha
+	cobrinha[0].pos_x += dir.x;
+	cobrinha[0].pos_y += dir.y;
+}
+
+enum Colisao detectar_colisao(Objeto *cobrinha, Objeto *frutos) {
+	if (cobrinha[0].pos_x == -1 || cobrinha[0].pos_x == SCREEN_WIDTH+1 || cobrinha[0].pos_y == -1 || cobrinha[0].pos_y == SCREEN_HEIGHT+1) {
+		return LIMITE;
+	}
+
+	for (size_t i = jaz_arr_len(cobrinha); i > 1; i--) {
+		if (cobrinha[0].pos_x == cobrinha[i].pos_x && cobrinha[0].pos_y == cobrinha[i].pos_y) {
+			// colidimos com a cobrinha
+			return COBRA;
+		}
+	}
+
+	for (size_t i = 0; i < jaz_arr_len(frutos); i++) {
+		if (cobrinha[0].pos_x == frutos[i].pos_x && cobrinha[0].pos_y == frutos[i].pos_y) {
+			// colidimos com um fruto
+			jaz_arr_deleteat(frutos, i);
+			return FRUTA;
+		}
 	}
 }
