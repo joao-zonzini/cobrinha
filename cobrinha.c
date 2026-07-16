@@ -40,7 +40,7 @@ void init_curses(WINDOW *win); Objeto *inicializar_cobrinha();
 Objeto *inicializar_frutos(); void definir_direcao(Direcao *dir, int key);
 void desenhar_objetos(Objeto *array); void atualizar_cobrinha(Objeto *cobrinha, Direcao dir);
 enum Colisao detectar_colisao(Objeto *cobrinha, Objeto *frutos);
-Objeto *adicionar_fruto(Objeto *frutos);
+Objeto *adicionar_fruto(Objeto *frutos); Objeto *adicionar_corpo(Objeto *cobrinha);
 
 int main(void){
 	// inicializar tela
@@ -51,9 +51,6 @@ int main(void){
 	// incializar objetos
 	Objeto *cobrinha = inicializar_cobrinha();
 	Objeto *frutos = inicializar_frutos();
-
-	Objeto corpo = {0};
-	corpo.icon = 'o';
 
 	Direcao dir = {
 		.x = 1,
@@ -81,11 +78,7 @@ int main(void){
 
 			case FRUTA:
 				frutos = adicionar_fruto(frutos);
-
-				corpo.pos_x = cobrinha[0].pos_x - dir.x;
-				corpo.pos_y = cobrinha[0].pos_y - dir.y;
-
-				jaz_arr_append(cobrinha, corpo);
+				cobrinha = adicionar_corpo(cobrinha);
 				break;
 		}
 
@@ -124,13 +117,7 @@ void init_curses(WINDOW *win) {
 Objeto *inicializar_cobrinha() {
 	Objeto *head = NULL;
 
-	Objeto cabeca = {
-		.pos_x = 0,
-		.pos_y = 0,
-		.icon = 'O',
-	};
-
-	jaz_arr_append(head, cabeca);
+	head = adicionar_corpo(head);
 
 	return head;
 }
@@ -207,4 +194,20 @@ Objeto *adicionar_fruto(Objeto *frutos) {
 	jaz_arr_append(frutos, fruta);
 
 	return frutos;
+}
+
+Objeto *adicionar_corpo(Objeto *cobrinha) {
+	Objeto corpo = {0};
+
+	if (cobrinha == NULL) {
+		corpo.icon = 'O';
+	} else {
+		corpo.pos_x = cobrinha[0].pos_x;
+		corpo.pos_y = cobrinha[0].pos_y;
+		corpo.icon = 'o';
+	}
+
+	jaz_arr_append(cobrinha, corpo);
+
+	return cobrinha;
 }
