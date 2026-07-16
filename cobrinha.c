@@ -33,6 +33,17 @@ void init_curses(WINDOW *win); Objeto *inicializar_cobrinha();
 Objeto *inicializar_frutos(); void definir_direcao(Direcao *dir, int key);
 void desenhar_objetos(Objeto *array);
 
+void atualizar_cobrinha(Objeto *cobrinha, Direcao dir) {
+	for (size_t i = jaz_arr_len(cobrinha); i > 0; i--) {
+		cobrinha[i].pos_x = cobrinha[i-1].pos_x;
+		cobrinha[i].pos_y = cobrinha[i-1].pos_y;
+	}
+
+	// atualizar posicao da cobrinha
+	cobrinha[0].pos_x += dir.x;
+	cobrinha[0].pos_y += dir.y;
+}
+
 int main(void){
 	// inicializar tela
 	WINDOW *win = initscr();
@@ -61,14 +72,7 @@ int main(void){
 			definir_direcao(&dir, pressed);
 		}
 
-		for (size_t i = jaz_arr_len(cobrinha); i > 0; i--) {
-			cobrinha[i].pos_x = cobrinha[i-1].pos_x;
-			cobrinha[i].pos_y = cobrinha[i-1].pos_y;
-		}
-
-		// atualizar posicao da cobrinha
-		cobrinha[0].pos_x += dir.x;
-		cobrinha[0].pos_y += dir.y;
+		atualizar_cobrinha(cobrinha, dir);
 
 		//verificar se fruta eh comida
 		for (size_t i = 0; i < jaz_arr_len(frutos); i++) {
