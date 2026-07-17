@@ -38,10 +38,11 @@ enum Colisao {
 
 void init_curses(WINDOW *win); Objeto *inicializar_cobrinha();
 Objeto *inicializar_frutos(); void definir_direcao(Direcao *dir, int key);
-void desenhar_objetos(Objeto *array); void atualizar_cobrinha(Objeto *cobrinha, Direcao dir);
+void atualizar_cobrinha(Objeto *cobrinha, Direcao dir);
 enum Colisao detectar_colisao(Objeto *cobrinha, Objeto *frutos);
 Objeto *adicionar_fruto(Objeto *frutos); Objeto *adicionar_corpo(Objeto *cobrinha);
-Objeto *iniciar_limites();
+Objeto *iniciar_limites(); void desenhar_borda(); void desenhar_frutos(Objeto *frutos);
+void desenhar_cobrinha(Objeto *cobrinha);
 
 int main(void){
 	// inicializar tela
@@ -87,9 +88,9 @@ int main(void){
 		// desenhar na janela
 		erase(); // apaga o que estava na tela
 
-		desenhar_objetos(limites);
-		desenhar_objetos(cobrinha);
-		desenhar_objetos(frutos);
+		desenhar_borda();
+		desenhar_cobrinha(cobrinha);
+		desenhar_frutos(frutos);
 
 		usleep(125000);
 	}
@@ -105,12 +106,6 @@ int main(void){
 	return 0;
 }
 
-void desenhar_objetos(Objeto *array) {
-	for (size_t i = 0; i < jaz_arr_len(array); i++) {
-		mvaddch(array[i].pos_y, array[i].pos_x * SCREEN_FACTOR, array[i].icon);
-	}
-}
-
 void init_curses(WINDOW *win) {
 	// aceita input do usuario
 	keypad(win, true);
@@ -124,11 +119,11 @@ void init_curses(WINDOW *win) {
 	}
 
 	start_color();
+	init_pair(1, COLOR_RED, COLOR_BLACK);
+	init_pair(2, COLOR_GREEN, COLOR_BLACK);
+	init_pair(3, COLOR_WHITE, COLOR_WHITE);
 
 	use_default_colors();
-	init_pair(1, COLOR_RED, -1);
-	init_pair(1, COLOR_GREEN, -1);
-	init_pair(1, COLOR_YELLOW, -1);
 }
 
 Objeto *inicializar_cobrinha() {
@@ -206,7 +201,8 @@ Objeto *adicionar_fruto(Objeto *frutos) {
 	fruta.icon = '@';
 
 	fruta.pos_x = (rand() % SCREEN_WIDTH+1);
-	fruta.pos_y = (rand() % SCREEN_HEIGHT);
+	fruta.pos_y = (rand() % SCREEN_HEIGHT+1);
+
 
 	jaz_arr_append(frutos, fruta);
 
@@ -219,11 +215,12 @@ Objeto *adicionar_corpo(Objeto *cobrinha) {
 	if (cobrinha == NULL) {
 		corpo.pos_x = 1;
 		corpo.pos_y = 1;
+		// corpo.icon = ACS_DIAMOND;
 		corpo.icon = 'O';
 	} else {
 		corpo.pos_x = cobrinha[0].pos_x;
 		corpo.pos_y = cobrinha[0].pos_y;
-		corpo.icon = 'o';
+		corpo.icon = ACS_DIAMOND;
 	}
 
 	jaz_arr_append(cobrinha, corpo);
@@ -235,7 +232,7 @@ Objeto *iniciar_limites() {
 	Objeto *limites = NULL;
 
 	Objeto borda = {0};
-	borda.icon = ':';
+	borda.icon = '-';
 
 	for (size_t i = 0; i < SCREEN_WIDTH; i++) {
 		borda.pos_x = i;
@@ -250,6 +247,7 @@ Objeto *iniciar_limites() {
 	}
 
 	borda.pos_x = 0;
+	borda.icon = '|';
 
 	for (size_t i = 0; i < SCREEN_HEIGHT; i++) {
 		borda.pos_y = i;
@@ -264,4 +262,49 @@ Objeto *iniciar_limites() {
 	}
 
 	return(limites);
+}
+
+void desenhar_borda() {
+	mvaddch(0, 0, ACS_ULCORNER);
+	mvaddch(0, SCREEN_WIDTH * SCREEN_FACTOR, ACS_URCORNER);
+	mvaddch(SCREEN_HEIGHT, 0, ACS_LLCORNER);
+	mvaddch(SCREEN_HEIGHT, SCREEN_WIDTH * SCREEN_FACTOR, ACS_LRCORNER);
+
+	for (size_t i = 1; i < SCREEN_WIDTH * SCREEN_FACTOR; i++) {
+		mvaddch(0, i, ACS_HLINE);
+	}
+
+	for (size_t i = 1; i < SCREEN_WIDTH * SCREEN_FACTOR; i++) {
+		mvaddch(SCREEN_HEIGHT, i, ACS_HLINE);
+	}
+
+	for (size_t i = 1; i < SCREEN_HEIGHT; i++) {
+		mvaddch(i, 0, ACS_VLINE);
+	}
+
+	for (size_t i = 1; i < SCREEN_HEIGHT; i++) {
+		mvaddch(i, SCREEN_WIDTH * SCREEN_FACTOR, ACS_VLINE);
+	}
+}
+
+void desenhar_frutos(Objeto *frutos) {
+	attron(COLOR_PAIR(1));
+
+	for (size_t i = 0; i < jaz_arr_len(frutos); i++) {
+		mvaddch(frutos[i].pos_y, frutos[i].pos_x * SCREEN_FACTOR, '@');
+	}
+
+	attroff(COLOR_PAIR(2));
+}
+
+void desenhar_cobrinha(Objeto *cobrinha) {
+	attron(COLOR_PAIR(2));
+
+	mvaddch(cobrinha[0].pos_y, cobrinha[0].pos_x * SCREEN_FACTOR, 'O');
+
+	for (size_t i = 1; i < jaz_arr_len(cobrinha); i++) {
+		mvaddch(cobrinha[i].pos_y, cobrinha[i].pos_x * SCREEN_FACTOR, ACS_DIAMOND);
+	}
+
+	attroff(COLOR_PAIR(2));
 }
