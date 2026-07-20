@@ -40,9 +40,10 @@ void init_curses(WINDOW *win); Objeto *inicializar_cobrinha();
 Objeto *inicializar_frutos(); void definir_direcao(Direcao *dir, int key);
 void atualizar_cobrinha(Objeto *cobrinha, Direcao dir);
 enum Colisao detectar_colisao(Objeto *cobrinha, Objeto *frutos);
-Objeto *adicionar_fruto(Objeto *frutos); Objeto *adicionar_corpo(Objeto *cobrinha);
-Objeto *iniciar_limites(); void desenhar_borda(); void desenhar_frutos(Objeto *frutos);
-void desenhar_cobrinha(Objeto *cobrinha);
+Objeto *adicionar_fruto(Objeto *frutos, Objeto *cobrinha);
+Objeto *adicionar_corpo(Objeto *cobrinha); Objeto *iniciar_limites();
+void desenhar_borda(); void desenhar_frutos(Objeto *frutos);
+void desenhar_cobrinha(Objeto *cobrinha); int esta_na_pos(Objeto *array, Direcao pos)
 
 int main(void){
 	// inicializar tela
@@ -80,7 +81,7 @@ int main(void){
 				break;
 
 			case FRUTA:
-				frutos = adicionar_fruto(frutos);
+				frutos = adicionar_fruto(frutos, cobrinha);
 				cobrinha = adicionar_corpo(cobrinha);
 				break;
 		}
@@ -135,13 +136,18 @@ Objeto *inicializar_cobrinha() {
 }
 
 Objeto *inicializar_frutos() {
-	Objeto *head = NULL;
+	Objeto *frutos = NULL;
+	Objeto fruta = {0};
+	fruta.icon = '@';
 
 	for (size_t i = 0; i < N_INIT_FRUTOS; i++) {
-		head = adicionar_fruto(head);
+		fruta.pos_x = (rand() % (SCREEN_WIDTH-1)) + 1;
+		fruta.pos_y = (rand() % (SCREEN_HEIGHT-1)) + 1;
+
+		jaz_arr_append(frutos, fruta);
 	}
 
-	return head;
+	return frutos;
 }
 
 void definir_direcao(Direcao *dir, int key){
@@ -196,13 +202,19 @@ enum Colisao detectar_colisao(Objeto *cobrinha, Objeto *frutos) {
 	}
 }
 
-Objeto *adicionar_fruto(Objeto *frutos) {
+Objeto *adicionar_fruto(Objeto *frutos, Objeto *cobrinha) {
+	Direcao temp = {0};
+
+	do {
+		temp.x = (rand() % (SCREEN_WIDTH-1)) + 1;
+		temp.y = (rand() % (SCREEN_HEIGHT-1)) + 1;
+	} while(esta_na_pos(frutos, temp) || esta_na_pos(cobrinha, temp));
+
 	Objeto fruta = {0};
 	fruta.icon = '@';
 
-	fruta.pos_x = (rand() % SCREEN_WIDTH+1);
-	fruta.pos_y = (rand() % SCREEN_HEIGHT+1);
-
+	fruta.pos_x = temp.x;
+	fruta.pos_y = temp.y;
 
 	jaz_arr_append(frutos, fruta);
 
@@ -307,4 +319,13 @@ void desenhar_cobrinha(Objeto *cobrinha) {
 	}
 
 	attroff(COLOR_PAIR(2));
+}
+
+int esta_na_pos(Objeto *array, Direcao pos) {
+	for (size_t i = 0; i < jaz_arr_len(array); i++) {
+		if (array[i].pos_x == pos.x && array[i].pos_y == pos.y) {
+			return 1;
+		}
+	}
+	return 0;
 }
