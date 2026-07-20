@@ -304,7 +304,7 @@ void desenhar_borda(int score) {
 		mvaddch(i, SCREEN_WIDTH * SCREEN_FACTOR, ACS_VLINE);
 	}
 
-	mvaddstr(0, SCREEN_WIDTH - 5, score_str);
+	mvaddstr(0, SCREEN_WIDTH - 7, score_str);
 }
 
 void desenhar_frutos(Objeto *frutos) {
