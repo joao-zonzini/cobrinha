@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <curses.h>
+#include <string.h>
 #include "jazlib.h"
 
 #ifndef SCREEN_WIDTH
@@ -42,8 +43,8 @@ void atualizar_cobrinha(Objeto *cobrinha, Direcao dir);
 enum Colisao detectar_colisao(Objeto *cobrinha, Objeto *frutos);
 Objeto *adicionar_fruto(Objeto *frutos, Objeto *cobrinha);
 Objeto *adicionar_corpo(Objeto *cobrinha); Objeto *iniciar_limites();
-void desenhar_borda(); void desenhar_frutos(Objeto *frutos);
-void desenhar_cobrinha(Objeto *cobrinha); int esta_na_pos(Objeto *array, Direcao pos)
+void desenhar_borda(int score); void desenhar_frutos(Objeto *frutos);
+void desenhar_cobrinha(Objeto *cobrinha); int esta_na_pos(Objeto *array, Direcao pos);
 
 int main(void){
 	// inicializar tela
@@ -89,7 +90,7 @@ int main(void){
 		// desenhar na janela
 		erase(); // apaga o que estava na tela
 
-		desenhar_borda();
+		desenhar_borda(jaz_arr_len(cobrinha)-1);
 		desenhar_cobrinha(cobrinha);
 		desenhar_frutos(frutos);
 
@@ -276,7 +277,9 @@ Objeto *iniciar_limites() {
 	return(limites);
 }
 
-void desenhar_borda() {
+void desenhar_borda(int score) {
+	char score_str[16];
+	sprintf(score_str, "[ Score: %d ]", score);
 	mvaddch(0, 0, ACS_ULCORNER);
 	mvaddch(0, SCREEN_WIDTH * SCREEN_FACTOR, ACS_URCORNER);
 	mvaddch(SCREEN_HEIGHT, 0, ACS_LLCORNER);
@@ -297,6 +300,8 @@ void desenhar_borda() {
 	for (size_t i = 1; i < SCREEN_HEIGHT; i++) {
 		mvaddch(i, SCREEN_WIDTH * SCREEN_FACTOR, ACS_VLINE);
 	}
+
+	mvaddstr(0, SCREEN_WIDTH - 5, score_str);
 }
 
 void desenhar_frutos(Objeto *frutos) {
