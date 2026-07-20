@@ -45,6 +45,7 @@ Objeto *adicionar_fruto(Objeto *frutos, Objeto *cobrinha);
 Objeto *adicionar_corpo(Objeto *cobrinha); Objeto *iniciar_limites();
 void desenhar_borda(int score); void desenhar_frutos(Objeto *frutos);
 void desenhar_cobrinha(Objeto *cobrinha); int esta_na_pos(Objeto *array, Direcao pos);
+void desenhar(Objeto *cobrinha, Objeto *frutos);
 
 int main(void){
 	// inicializar tela
@@ -69,7 +70,7 @@ int main(void){
 
 		if (pressed == '\e') {
 			break;
-		} else {
+		}	else {
 			definir_direcao(&dir, pressed);
 		}
 
@@ -87,12 +88,14 @@ int main(void){
 				break;
 		}
 
-		// desenhar na janela
-		erase(); // apaga o que estava na tela
+		if (pressed == 'p') {
+			do {
+				desenhar(cobrinha, frutos);
+				pressed = wgetch(win);
+			} while (pressed != 'p');
+		}
 
-		desenhar_borda(jaz_arr_len(cobrinha)-1);
-		desenhar_cobrinha(cobrinha);
-		desenhar_frutos(frutos);
+		desenhar(cobrinha, frutos);
 
 		usleep(125000);
 	}
@@ -333,4 +336,13 @@ int esta_na_pos(Objeto *array, Direcao pos) {
 		}
 	}
 	return 0;
+}
+
+void desenhar(Objeto *cobrinha, Objeto *frutos) {
+	// desenhar na janela
+	erase(); // apaga o que estava na tela
+
+	desenhar_borda(jaz_arr_len(cobrinha)-1);
+	desenhar_cobrinha(cobrinha);
+	desenhar_frutos(frutos);
 }
