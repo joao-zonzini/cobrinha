@@ -180,6 +180,14 @@ void atualizar_cobrinha(Objeto *cobrinha, Direcao dir) {
 		cobrinha[i].pos_y = cobrinha[i-1].pos_y;
 	}
 
+	for (size_t i = 1; i < jaz_arr_len(cobrinha)-1; i++) {
+		if (cobrinha[i].icon == '@') {
+			cobrinha[i+1].icon = '@';
+			cobrinha[i].icon = 'o';
+			break;
+		}
+	}
+
 	// atualizar posicao da cobrinha
 	cobrinha[0].pos_x += dir.x;
 	cobrinha[0].pos_y += dir.y;
@@ -233,13 +241,13 @@ Objeto *adicionar_corpo(Objeto *cobrinha) {
 		corpo.pos_y = 1;
 		// corpo.icon = ACS_DIAMOND;
 		corpo.icon = 'O';
+		jaz_arr_append(cobrinha, corpo);
 	} else {
 		corpo.pos_x = cobrinha[0].pos_x;
 		corpo.pos_y = cobrinha[0].pos_y;
-		corpo.icon = ACS_DIAMOND;
+		corpo.icon = '@';
+		jaz_arr_inserat(cobrinha, 1, corpo);
 	}
-
-	jaz_arr_append(cobrinha, corpo);
 
 	return cobrinha;
 }
@@ -314,7 +322,7 @@ void desenhar_frutos(Objeto *frutos) {
 		mvaddch(frutos[i].pos_y, frutos[i].pos_x * SCREEN_FACTOR, '@');
 	}
 
-	attroff(COLOR_PAIR(2));
+	attroff(COLOR_PAIR(1));
 }
 
 void desenhar_cobrinha(Objeto *cobrinha) {
@@ -323,7 +331,15 @@ void desenhar_cobrinha(Objeto *cobrinha) {
 	mvaddch(cobrinha[0].pos_y, cobrinha[0].pos_x * SCREEN_FACTOR, 'O');
 
 	for (size_t i = 1; i < jaz_arr_len(cobrinha); i++) {
-		mvaddch(cobrinha[i].pos_y, cobrinha[i].pos_x * SCREEN_FACTOR, ACS_DIAMOND);
+		if (cobrinha[i].icon == '@') {
+			attroff(COLOR_PAIR(2));
+			attron(COLOR_PAIR(1));
+			mvaddch(cobrinha[i].pos_y, cobrinha[i].pos_x * SCREEN_FACTOR, ACS_DIAMOND);
+			attroff(COLOR_PAIR(1));
+			attron(COLOR_PAIR(2));
+		} else {
+			mvaddch(cobrinha[i].pos_y, cobrinha[i].pos_x * SCREEN_FACTOR, ACS_DIAMOND);
+		}
 	}
 
 	attroff(COLOR_PAIR(2));
