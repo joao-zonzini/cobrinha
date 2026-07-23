@@ -97,7 +97,7 @@ int main(void){
 
 		desenhar(cobrinha, frutos);
 
-		usleep(125000);
+		usleep(125000 - (1000 * jaz_arr_len(cobrinha)));
 	}
 
 	endwin();
