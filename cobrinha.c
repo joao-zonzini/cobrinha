@@ -42,10 +42,9 @@ Objeto *inicializar_frutos(); void definir_direcao(Direcao *dir, int key);
 void atualizar_cobrinha(Objeto *cobrinha, Direcao dir);
 enum Colisao detectar_colisao(Objeto *cobrinha, Objeto *frutos);
 Objeto *adicionar_fruto(Objeto *frutos, Objeto *cobrinha);
-Objeto *adicionar_corpo(Objeto *cobrinha); Objeto *iniciar_limites();
-void desenhar_borda(int score); void desenhar_frutos(Objeto *frutos);
-void desenhar_cobrinha(Objeto *cobrinha); int esta_na_pos(Objeto *array, Direcao pos);
-void desenhar(Objeto *cobrinha, Objeto *frutos);
+Objeto *adicionar_corpo(Objeto *cobrinha); void desenhar_borda(int score);
+void desenhar_frutos(Objeto *frutos); void desenhar_cobrinha(Objeto *cobrinha);
+int esta_na_pos(Objeto *array, Direcao pos); void desenhar(Objeto *cobrinha, Objeto *frutos);
 
 int main(void){
 	// inicializar tela
@@ -56,7 +55,6 @@ int main(void){
 	// incializar objetos
 	Objeto *cobrinha = inicializar_cobrinha();
 	Objeto *frutos = inicializar_frutos();
-	Objeto *limites = iniciar_limites();
 
 	Direcao dir = {
 		.x = 1,
@@ -104,7 +102,6 @@ int main(void){
 
 	printf("Score: %d\n", jaz_arr_len(cobrinha)-1);
 
-	jaz_arr_free(limites);
 	jaz_arr_free(cobrinha);
 	jaz_arr_free(frutos);
 
@@ -250,42 +247,6 @@ Objeto *adicionar_corpo(Objeto *cobrinha) {
 	}
 
 	return cobrinha;
-}
-
-Objeto *iniciar_limites() {
-	Objeto *limites = NULL;
-
-	Objeto borda = {0};
-	borda.icon = '-';
-
-	for (size_t i = 0; i < SCREEN_WIDTH; i++) {
-		borda.pos_x = i;
-		jaz_arr_append(limites, borda);
-	}
-
-	borda.pos_y = SCREEN_HEIGHT;
-
-	for (size_t i = 0; i < SCREEN_WIDTH; i++) {
-		borda.pos_x = i;
-		jaz_arr_append(limites, borda);
-	}
-
-	borda.pos_x = 0;
-	borda.icon = '|';
-
-	for (size_t i = 0; i < SCREEN_HEIGHT; i++) {
-		borda.pos_y = i;
-		jaz_arr_append(limites, borda);
-	}
-
-	borda.pos_x = SCREEN_WIDTH;
-
-	for (size_t i = 0; i <= SCREEN_HEIGHT; i++) {
-		borda.pos_y = i;
-		jaz_arr_append(limites, borda);
-	}
-
-	return(limites);
 }
 
 void desenhar_borda(int score) {
