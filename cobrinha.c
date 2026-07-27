@@ -34,7 +34,8 @@ typedef struct {
 enum Colisao {
 	COBRA,
 	FRUTA,
-	LIMITE
+	LIMITE,
+	PORTAL
 };
 
 void init_curses(WINDOW *win); Objeto *inicializar_cobrinha();
@@ -84,6 +85,10 @@ int main(void){
 				frutos = adicionar_fruto(frutos, cobrinha);
 				cobrinha = adicionar_corpo(cobrinha);
 				break;
+
+			case PORTAL:
+				cobrinha[0].pos_x = abs(cobrinha[0].pos_x - SCREEN_WIDTH);
+				break;
 		}
 
 		if (pressed == 'p') {
@@ -123,7 +128,7 @@ void init_curses(WINDOW *win) {
 	start_color();
 	init_pair(1, COLOR_RED, COLOR_BLACK);
 	init_pair(2, COLOR_GREEN, COLOR_BLACK);
-	init_pair(3, COLOR_WHITE, COLOR_WHITE);
+	init_pair(3, COLOR_BLUE, COLOR_BLACK);
 
 	use_default_colors();
 }
@@ -191,6 +196,10 @@ void atualizar_cobrinha(Objeto *cobrinha, Direcao dir) {
 }
 
 enum Colisao detectar_colisao(Objeto *cobrinha, Objeto *frutos) {
+	if ((cobrinha[0].pos_x == 0 && cobrinha[0].pos_y == 5) || (cobrinha[0].pos_x == 0 && cobrinha[0].pos_y == SCREEN_HEIGHT - 5) || (cobrinha[0].pos_x == SCREEN_WIDTH && cobrinha[0].pos_y == 5) || (cobrinha[0].pos_x == SCREEN_WIDTH && cobrinha[0].pos_y == SCREEN_HEIGHT - 5)) {
+		return PORTAL;
+	}
+
 	if (cobrinha[0].pos_x == 0 || cobrinha[0].pos_x == SCREEN_WIDTH || cobrinha[0].pos_y == 0 || cobrinha[0].pos_y == SCREEN_HEIGHT) {
 		return LIMITE;
 	}
@@ -272,6 +281,13 @@ void desenhar_borda(int score) {
 	for (size_t i = 1; i < SCREEN_HEIGHT; i++) {
 		mvaddch(i, SCREEN_WIDTH * SCREEN_FACTOR, ACS_VLINE);
 	}
+
+	attron(COLOR_PAIR(3));
+	mvaddch(5, 0, ACS_VLINE);
+	mvaddch(5, SCREEN_WIDTH * SCREEN_FACTOR, ACS_VLINE);
+	mvaddch(SCREEN_HEIGHT - 5, 0, ACS_VLINE);
+	mvaddch(SCREEN_HEIGHT - 5, SCREEN_WIDTH * SCREEN_FACTOR, ACS_VLINE);
+	attroff(COLOR_PAIR(3));
 
 	mvaddstr(0, SCREEN_WIDTH - 7, score_str);
 }
