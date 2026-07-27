@@ -1,5 +1,5 @@
-// snake.c
-// descrip
+// cobrinha.c
+// Implementação do jogo Snake usando dynamic arrays em C
 // jaz 15/07/26
 
 #include <stdlib.h>
